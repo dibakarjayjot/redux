@@ -9,7 +9,7 @@ class Login extends Component{
         <label><strong>{label}</strong></label>
         <input  {...input} className="inputField"/>   </div>     );
     }
-    onSubmit(formValues){
+    onSubmit= (formValues) => {
     const dat = JSON.parse(localStorage.getItem("userData"));
     for (var i in dat) {
       var email = dat[i].email;
@@ -17,9 +17,9 @@ class Login extends Component{
       if (formValues.email === email) {
         if (formValues.password === password) {
           
-          localStorage.setItem("currentUser", formValues.email);
+          localStorage.setItem("currentUser",JSON.stringify(formValues.email));
           this.props.history.push("/profile");
-          break;
+          
         }
       }}
     }
