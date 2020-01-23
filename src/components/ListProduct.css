@@ -1,0 +1,21 @@
+.content {
+  margin-left: 250px;
+  margin-top: 100px;
+  top: 0%;
+  position: relative;
+  width: 40%;
+}
+.content1 {
+  margin-top: 50px;
+  position: relative;
+  margin-left: 10px;
+}
+
+.inputField {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
