@@ -1,58 +1,49 @@
-import React, { Component } from "react";
-import { Field, reduxForm } from "redux-form";
-import { withRouter } from "react-router-dom";
-import "./Login.css";
-class Login extends Component {
-  renderInput({ input, label }) {
-    return (
-      <div>
-        <label>
-          <strong>{label}</strong>
-        </label>
-        <input {...input} className="inputField" />{" "}
-      </div>
-    );
-  }
-  onSubmit = formValues => {
-    const dat = JSON.parse(localStorage.getItem("userData"));
-    for (var i in dat) {
-      var email = dat[i].email;
-      var password = dat[i].password;
-      if (formValues.email === email) {
-        if (formValues.password === password) {
-          localStorage.setItem("currentUser", JSON.stringify(formValues.email));
-          this.props.history.push("/profile");
-        }
-      }
-    }
-  };
-  render() {
-    return (
-      <form
-        onSubmit={this.props.handleSubmit(this.onSubmit)}
-        className="container"
-      >
-        <h2 style={{ textAlign: "center" }}>Log In</h2>
-        <Field
-          type="email"
-          name="email"
-          component={this.renderInput}
-          label=" E-mail"
-        />
-        <Field
-          type="password"
-          name="password"
-          component={this.renderInput}
-          label="Password"
-        />
-        <div style={{ textAlign: "center" }}>
-          <button type="submit" className="btn">
-            Login
-          </button>
-        </div>
-      </form>
-    );
-  }
-}
+import React from 'react';
+import { withFormik, Form, Field } from 'formik';
+import * as Yup from 'yup';
+import { connect } from 'react-redux';
+import { login } from '../actions';
+import 'react-datepicker/dist/react-datepicker.css';
+import './Login.css';
 
-export default withRouter(reduxForm({ form: "Login" })(Login));
+const Login = ({ touched, errors, values }) => (
+	<Form className="login-form">
+		<h2 style={{ textAlign: 'center' }}>Login</h2>
+		<div>
+			<label>
+				Email
+				<Field type="email" name="email" placeholder="Email" className="first" autoComplete="off" />
+			</label>
+			{touched.email && errors.email && <p>{errors.email}</p>}
+		</div>
+		<div>
+			<label>
+				Password
+				<Field type="password" name="password" placeholder="Password" autoComplete="off" className="first" />
+			</label>
+			{touched.password && errors.password && <p>{errors.password}</p>}
+		</div>
+		<div style={{ textAlign: 'center ' }}>
+			<button type="submit" style={{ textAlign: 'center' }}>
+				Submit
+			</button>
+		</div>
+	</Form>
+);
+
+const FormikLogin = withFormik({
+	mapPropsToValues({ email, password }) {
+		return {
+			email: email || '',
+			password: password || ''
+		};
+	},
+	validationSchema: Yup.object().shape({
+		email: Yup.string().email().required(),
+		password: Yup.string().min(6).required()
+	}),
+	handleSubmit(values, props) {
+		props.props.login(values);
+	}
+})(Login);
+export default connect(null, { login })(FormikLogin);

@@ -1,84 +1,51 @@
-import React, { Component } from "react";
-import { Field, reduxForm } from "redux-form";
-import Sidebar from "./Sidebar";
-import "./ListProduct.css";
-class ListProduct extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      searchResults: null
-    };
-  }
-  renderInput({ input, label }) {
-    return (
-      <div>
-        <label>
-          <strong>{label}</strong>
-        </label>
-        <input {...input} className="inputField" />{" "}
-      </div>
-    );
-  }
-  onSubmit = formValues => {
-    const curr = JSON.parse(localStorage.getItem("currentUser"));
-    const currItem = JSON.parse(localStorage.getItem(curr));
-    const da = currItem.filter(dat => {
-      return dat.productname === formValues.productname;
-    });
-    this.setState({
-      searchResults: da
-    });
-  };
-  render() {
-    return (
-      <div>
-        <div>
-          <Sidebar />
-        </div>
-        <div className="content">
-          <form onSubmit={this.props.handleSubmit(this.onSubmit)}>
-            <h2 style={{ textAlign: "center" }}>Search Product By name</h2>
-            <Field
-              type="text"
-              name="productname"
-              component={this.renderInput}
-              label="Product Name"
-            />
+import React from 'react';
+import { withRouter } from 'react-router-dom';
+import DatePicker from 'react-datepicker';
+import { withFormik, Form, Field } from 'formik';
+import * as Yup from 'yup';
+import 'react-datepicker/dist/react-datepicker.css';
+import './Login.css';
+import Sidebar from './Sidebar';
 
-            <div style={{ textAlign: "center" }}>
-              <button type="submit" className="btn">
-                {" "}
-                Search{" "}
-              </button>
-            </div>
-          </form>
+const ListProduct = ({ touched, errors, values, setFieldValue }) => (
+	<div>
+		<Sidebar />
+		<Form className="login-form">
+			<div>
+				<h2 style={{ textAlign: 'center' }}>Search Product By name</h2>
+				<label>
+					Product Name
+					<Field
+						type="text"
+						name="productName"
+						placeholder="Product Name"
+						className="first"
+						autoComplete="off"
+					/>
+				</label>
+				{touched.productName && errors.productName && <p>{errors.productName}</p>}
+			</div>
 
-          <div className="content1">
-            {this.state.searchResults ? (
-              <div>
-                <h2 style={{ textAlign: "center" }}>Search Results </h2>
-                <table id="products">
-                  <tr>
-                    <th>Product Name</th>
-                    <th>Product Code</th>
-                    <th> Quantity</th>
-                  </tr>
+			<div style={{ textAlign: 'center ' }}>
+				<button type="submit" style={{ textAlign: 'center' }}>
+					Search
+				</button>
+			</div>
+		</Form>
+	</div>
+);
 
-                  {this.state.searchResults.map(cu => (
-                    <tr>
-                      <td>{cu.productname}</td>
-                      <td>{cu.productcode}</td>
-                      <td>{cu.quantity}</td>{" "}
-                    </tr>
-                  ))}
-                </table>{" "}
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </div>
-    );
-  }
-}
-
-export default reduxForm({ form: "ListProduct" })(ListProduct);
+const FormikListProduct = withFormik({
+	mapPropsToValues({ productName }) {
+		return {
+			productName: productName || ''
+		};
+	},
+	validationSchema: Yup.object().shape({
+		productName: Yup.string().required()
+	}),
+	handleSubmit(values) {
+		console.log(values);
+	}
+})(ListProduct);
+export default FormikListProduct;

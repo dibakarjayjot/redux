@@ -1,67 +1,74 @@
-import React, { Component } from "react";
-import { Field, reduxForm } from "redux-form";
-import Sidebar from "./Sidebar.js";
-import "./AddProduct.css";
-class AddProduct extends Component {
-  renderInput({ input, label }) {
-    return (
-      <div>
-        <label>
-          <strong>{label}</strong>
-        </label>
-        <input {...input} className="inputField" />{" "}
-      </div>
-    );
-  }
-  onSubmit = formValues => {
-    const curr = JSON.parse(localStorage.getItem("currentUser"));
-    const currItem = JSON.parse(localStorage.getItem(curr));
-    let da = [];
-    currItem === null ? (da = [formValues]) : (da = [...currItem, formValues]);
-    localStorage.setItem(curr, JSON.stringify(da));
-    this.props.reset();
-  };
-  render() {
-    return (
-      <div>
-        <div>
-          <Sidebar />
-        </div>
-        <div className="content">
-          <form
-            onSubmit={this.props.handleSubmit(this.onSubmit)}
-            className="container"
-          >
-            <h2 style={{ textAlign: "center" }}>Add New Product</h2>
-            <Field
-              type="text"
-              name="productname"
-              component={this.renderInput}
-              label="Product Name"
-            />
-            <Field
-              type="text"
-              name="productcode"
-              component={this.renderInput}
-              label="Product Code"
-            />
-            <Field
-              type="number"
-              name="quantity"
-              component={this.renderInput}
-              label="Quantity"
-            />
+import React from 'react';
+import { withRouter } from 'react-router-dom';
 
-            <div style={{ textAlign: "center" }}>
-              <button type="submit" className="btn">
-                Add{" "}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    );
-  }
-}
+import { withFormik, Form, Field } from 'formik';
+import * as Yup from 'yup';
+import 'react-datepicker/dist/react-datepicker.css';
+import './Login.css';
+import Sidebar from './Sidebar';
 
-export default reduxForm({ form: "AddProduct" })(AddProduct);
+const AddProduct = ({ touched, errors, values, setFieldValue }) => (
+	<div>
+		<Sidebar />
+		<Form className="login-form">
+			<div>
+				<h2 style={{ textAlign: 'center' }}>Add Product</h2>
+				<label>
+					Product Name
+					<Field
+						type="text"
+						name="productName"
+						placeholder="Product Name"
+						className="first"
+						autoComplete="off"
+					/>
+				</label>
+				{touched.productName && errors.productName && <p>{errors.productName}</p>}
+			</div>
+			<div>
+				<label>
+					Product Code
+					<Field
+						type="text"
+						name="productCode"
+						placeholder="Product Code"
+						autoComplete="off"
+						className="first"
+					/>
+				</label>
+				{touched.productCode && errors.productCode && <p>{errors.productCode}</p>}
+			</div>
+			<div>
+				<label>
+					Quantity
+					<Field type="number" name="quantity" placeholder="Quantity" autoComplete="off" className="first" />
+				</label>
+				{touched.quantity && errors.quantity && <p>{errors.quantity}</p>}
+			</div>
+			<div style={{ textAlign: 'center ' }}>
+				<button type="submit" style={{ textAlign: 'center' }}>
+					Add Product
+				</button>
+			</div>
+		</Form>
+	</div>
+);
+
+const FormikAddProduct = withFormik({
+	mapPropsToValues({ productName, productCode, quantity }) {
+		return {
+			productName: productName || '',
+			productCode: productCode || '',
+			quantity: quantity || 1
+		};
+	},
+	validationSchema: Yup.object().shape({
+		productName: Yup.string().required(),
+		productCode: Yup.string().required(),
+		quantity: Yup.number().required().positive()
+	}),
+	handleSubmit(values) {
+		console.log(values);
+	}
+})(AddProduct);
+export default FormikAddProduct;

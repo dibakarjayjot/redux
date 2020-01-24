@@ -1,66 +1,52 @@
-import React, { Component } from "react";
-import { Field, reduxForm } from "redux-form";
-import { withRouter } from "react-router-dom";
-import Sidebar from "./Sidebar";
+import React from 'react';
+import { withRouter } from 'react-router-dom';
+import DatePicker from 'react-datepicker';
+import { withFormik, Form, Field } from 'formik';
+import * as Yup from 'yup';
+import 'react-datepicker/dist/react-datepicker.css';
+import './Login.css';
+import Sidebar from './Sidebar';
 
-class Profile extends Component {
-  renderInput({ input, label }) {
-    return (
-      <div>
-        <label>
-          <strong>{label}</strong>
-        </label>
-        <input {...input} className="inputField" />{" "}
-      </div>
-    );
-  }
-  onSubmit = formValues => {
-    const dat = JSON.parse(localStorage.getItem("userData"));
-    const current = JSON.parse(localStorage.getItem("currentUser"));
-    for (var i in dat) {
-      var email = dat[i].email;
-      if (current === email) {
-        dat[i].firstname = formValues.firstname;
-        dat[i].lastname = formValues.lastname;
-        localStorage.setItem("userData", JSON.stringify(dat));
-        this.props.history.push("/products/add");
-        break;
-      }
-    }
-  };
+const Profile = ({ touched, errors, values, setFieldValue }) => (
+	<div>
+		<Sidebar />
+		<Form className="login-form">
+			<div>
+				<label>
+					First Name
+					<Field type="text" name="firstName" placeholder="First Name" className="first" autoComplete="off" />
+				</label>
+				{touched.firstName && errors.firstName && <p>{errors.firstName}</p>}
+			</div>
+			<div>
+				<label>
+					Last Name
+					<Field type="text" name="lastName" placeholder="Last Name" autoComplete="off" className="first" />
+				</label>
+				{touched.lastName && errors.lastName && <p>{errors.lastName}</p>}
+			</div>
+			<div style={{ textAlign: 'center ' }}>
+				<button type="submit" style={{ textAlign: 'center' }}>
+					Add
+				</button>
+			</div>
+		</Form>
+	</div>
+);
 
-  render() {
-    return (
-      <div>
-        <Sidebar />
-        <div>
-          <form
-            onSubmit={this.props.handleSubmit(this.onSubmit)}
-            className="container"
-          >
-            <Field
-              type="text"
-              name="firstname"
-              component={this.renderInput}
-              label="First Name"
-            />
-            <Field
-              type="text "
-              name="lastname"
-              component={this.renderInput}
-              label="Last Name"
-            />
-            <div style={{ textAlign: "center" }}>
-              <button type="submit" className="btn">
-                {" "}
-                Add{" "}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    );
-  }
-}
-
-export default withRouter(reduxForm({ form: "Profile" })(Profile));
+const FormikProfile = withFormik({
+	mapPropsToValues({ firstName, lastName }) {
+		return {
+			firstName: firstName || '',
+			lastName: lastName || ''
+		};
+	},
+	validationSchema: Yup.object().shape({
+		firstName: Yup.string().required(),
+		lastName: Yup.string().required()
+	}),
+	handleSubmit(values) {
+		console.log(values);
+	}
+})(Profile);
+export default FormikProfile;
